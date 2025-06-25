@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Мини-Ферма WizeBot</title>
+  <style>
+    body { font-family: sans-serif; padding: 30px; background: #f2f2f2; }
+    .box { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0002; padding: 24px; max-width: 400px; margin: 0 auto; }
+    button { font-size: 1.2em; padding: 12px 24px; margin-top: 16px; }
+    #result { margin-top: 16px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Твоя мини-ферма 🧑‍🌾</h2>
+    <label>
+      Ник Twitch:
+      <input type="text" id="twitchName" placeholder="Введите свой Twitch ник">
+    </label>
+    <br><br>
+    <button id="collectBtn">Собрать урожай (+100 монет)</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Настройки
+    const REWARD = 100;             // сколько монет выдаём за сбор
+    const COOLDOWN = 30 * 1000;     // 30 секунд (таймер между сборами)
+    const SECRET_TOKEN = "mytoken"; // простой "секрет" для безопасности
+
+    let lastCollectTime = 0;
+
+    document.getElementById('collectBtn').onclick = async function() {
+      const twitchName = document.getElementById('twitchName').value.trim();
+      if (!twitchName) {
+        document.getElementById('result').innerText = 'Введите свой Twitch ник!';
+        return;
+      }
+
+      // проверка кулдауна
+      const now = Date.now();
+      if (now - lastCollectTime < COOLDOWN) {
+        document.getElementById('result').innerText = `Подожди ещё ${Math.ceil((COOLDOWN - (now - lastCollectTime))/1000)} сек.`;
+        return;
+      }
+
+      // Запрос к WizeBot (замени YOUR_WIZEBOT_COMMAND на название команды)
+      // Пример: !farmreward [ник] [сумма] [токен]
+      const url = `https://wizebot.tv/api/commands/YOUR_WIZEBOT_COMMAND?args=${encodeURIComponent(twitchName)}%20${REWARD}%20${SECRET_TOKEN}`;
+      try {
+        // Тут вместо fetch делаем переход по ссылке, чтобы пользователь сам вызвал команду (WizeBot не поддерживает прямой вызов fetch с сайта)
+        window.open(url, '_blank');
+        document.getElementById('result').innerText = 'Запрос отправлен! Проверь чат на Twitch!';
+        lastCollectTime = now;
+      } catch (err) {
+        document.getElementById('result').innerText = 'Ошибка! Попробуй ещё раз.';
+      }
+    };
+  </script>
+</body>
+</html>
